@@ -1,8 +1,5 @@
 import os
-import io
-import base64
 import tempfile
-
 import streamlit as st
 from groq import Groq
 
@@ -11,9 +8,10 @@ from groq import Groq
 # =========================================================
 
 st.set_page_config(
-    page_title="VoiceFlow AI",
+    page_title="Voxora AI",
     page_icon="🎙️",
-    layout="wide"
+    layout="wide",
+    initial_sidebar_state="collapsed"
 )
 
 # =========================================================
@@ -22,65 +20,217 @@ st.set_page_config(
 
 st.markdown("""
 <style>
-    .stApp {
-        background: linear-gradient(135deg, #0f172a, #111827, #1e1b4b);
-        color: white;
-    }
 
-    .title {
-        text-align: center;
-        font-size: 48px;
-        font-weight: 800;
-        margin-top: 20px;
-    }
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&display=swap');
 
-    .subtitle {
-        text-align: center;
-        color: #cbd5e1;
-        font-size: 18px;
-        margin-bottom: 35px;
-    }
+html, body, [class*="css"] {
+    font-family: 'DM Sans', sans-serif;
+}
 
-    .box {
-        background: rgba(255,255,255,0.08);
-        border: 1px solid rgba(255,255,255,0.15);
-        border-radius: 20px;
-        padding: 25px;
-        margin-bottom: 20px;
-    }
+.stApp {
+    background:
+        radial-gradient(circle at 15% 20%, rgba(124,58,237,0.25), transparent 30%),
+        radial-gradient(circle at 85% 25%, rgba(59,130,246,0.20), transparent 30%),
+        radial-gradient(circle at 50% 90%, rgba(236,72,153,0.12), transparent 35%),
+        #070b18;
+    color: white;
+}
 
-    .response {
-        background: rgba(255,255,255,0.08);
-        border-left: 4px solid #8b5cf6;
-        border-radius: 15px;
-        padding: 20px;
-        font-size: 17px;
-        line-height: 1.7;
-    }
+/* Remove default top space */
+.block-container {
+    max-width: 1200px;
+    padding-top: 2rem;
+}
 
-    div.stButton > button {
-        width: 100%;
-        border-radius: 12px;
-        height: 50px;
-        font-size: 17px;
-        font-weight: 700;
-    }
+/* Main heading */
+.hero {
+    text-align: center;
+    padding: 35px 20px 20px 20px;
+}
+
+.logo {
+    width: 78px;
+    height: 78px;
+    margin: auto;
+    border-radius: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 38px;
+
+    background: linear-gradient(
+        135deg,
+        rgba(139,92,246,0.35),
+        rgba(59,130,246,0.30)
+    );
+
+    border: 1px solid rgba(255,255,255,0.15);
+
+    box-shadow:
+        0 0 40px rgba(139,92,246,0.35);
+}
+
+.hero h1 {
+    font-size: 52px;
+    font-weight: 800;
+    margin: 18px 0 8px 0;
+
+    background: linear-gradient(
+        90deg,
+        #ffffff,
+        #c4b5fd,
+        #93c5fd
+    );
+
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.hero p {
+    color: #aab4cc;
+    font-size: 18px;
+    margin: 0 auto;
+    max-width: 650px;
+}
+
+/* Glass cards */
+.glass {
+    background: rgba(255,255,255,0.055);
+    border: 1px solid rgba(255,255,255,0.10);
+    border-radius: 24px;
+    padding: 28px;
+    backdrop-filter: blur(20px);
+    box-shadow: 0 20px 70px rgba(0,0,0,0.20);
+}
+
+.card-title {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.card-subtitle {
+    color: #8f9ab3;
+    font-size: 14px;
+    margin-bottom: 20px;
+}
+
+/* Voice circle */
+.voice-circle {
+    width: 120px;
+    height: 120px;
+    margin: 15px auto 25px auto;
+
+    border-radius: 50%;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 48px;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(139,92,246,0.35),
+            rgba(59,130,246,0.12)
+        );
+
+    border: 1px solid rgba(167,139,250,0.35);
+
+    box-shadow:
+        0 0 0 12px rgba(139,92,246,0.04),
+        0 0 60px rgba(139,92,246,0.30);
+}
+
+/* Buttons */
+.stButton > button {
+    width: 100%;
+    border: none;
+    border-radius: 14px;
+    min-height: 48px;
+
+    font-weight: 700;
+    font-size: 15px;
+
+    color: white;
+
+    background: linear-gradient(
+        90deg,
+        #7c3aed,
+        #2563eb
+    );
+
+    box-shadow:
+        0 10px 30px rgba(99,102,241,0.25);
+
+    transition: 0.2s;
+}
+
+.stButton > button:hover {
+    transform: translateY(-2px);
+    box-shadow:
+        0 15px 35px rgba(99,102,241,0.40);
+}
+
+/* Audio */
+audio {
+    width: 100%;
+}
+
+/* Text area */
+textarea {
+    background: rgba(255,255,255,0.05) !important;
+    color: white !important;
+    border-radius: 15px !important;
+}
+
+/* Status */
+.status {
+    text-align: center;
+    color: #9ca3af;
+    font-size: 13px;
+    margin-top: 10px;
+}
+
+/* Feature cards */
+.feature {
+    text-align: center;
+    padding: 20px;
+    border-radius: 18px;
+    background: rgba(255,255,255,0.035);
+    border: 1px solid rgba(255,255,255,0.07);
+}
+
+.feature-icon {
+    font-size: 28px;
+}
+
+.feature-title {
+    font-weight: 700;
+    margin-top: 8px;
+}
+
+.feature-text {
+    color: #8f9ab3;
+    font-size: 13px;
+}
+
+/* Hide Streamlit menu/footer */
+#MainMenu {
+    visibility: hidden;
+}
+
+footer {
+    visibility: hidden;
+}
+
+header {
+    background: transparent !important;
+}
+
 </style>
 """, unsafe_allow_html=True)
-
-# =========================================================
-# TITLE
-# =========================================================
-
-st.markdown(
-    '<div class="title">🎙️ VoiceFlow AI</div>',
-    unsafe_allow_html=True
-)
-
-st.markdown(
-    '<div class="subtitle">Talk naturally with your AI voice assistant</div>',
-    unsafe_allow_html=True
-)
 
 # =========================================================
 # API KEY
@@ -88,17 +238,14 @@ st.markdown(
 
 api_key = None
 
-if "GROQ_API_KEY" in st.secrets:
+try:
     api_key = st.secrets["GROQ_API_KEY"]
-
-if not api_key:
+except:
     api_key = os.getenv("GROQ_API_KEY")
 
 if not api_key:
-    st.error("❌ Groq API key nahi mili.")
-    st.info(
-        "Streamlit Secrets mein GROQ_API_KEY add karo."
-    )
+    st.error("❌ GROQ_API_KEY nahi mili.")
+    st.info("Streamlit Secrets mein GROQ_API_KEY add karein.")
     st.stop()
 
 client = Groq(api_key=api_key)
@@ -107,239 +254,355 @@ client = Groq(api_key=api_key)
 # SESSION STATE
 # =========================================================
 
-if "messages" not in st.session_state:
-    st.session_state.messages = []
-
-if "last_response" not in st.session_state:
-    st.session_state.last_response = ""
+if "conversation" not in st.session_state:
+    st.session_state.conversation = []
 
 # =========================================================
-# SIDEBAR
+# HERO
 # =========================================================
 
-with st.sidebar:
-    st.markdown("## ⚙️ Settings")
+st.markdown("""
+<div class="hero">
 
-    model = st.selectbox(
-        "AI Model",
-        [
-            "llama-3.1-8b-instant",
-            "llama-3.3-70b-versatile"
-        ],
-        index=0
+    <div class="logo">🎙️</div>
+
+    <h1>Voxora AI</h1>
+
+    <p>
+        Voice to Voice AI Generator
+        <br>
+        <span style="font-size:15px;">
+        Speak naturally. Think intelligently. Talk with AI.
+        </span>
+    </p>
+
+</div>
+""", unsafe_allow_html=True)
+
+# =========================================================
+# FEATURES
+# =========================================================
+
+f1, f2, f3 = st.columns(3)
+
+with f1:
+    st.markdown("""
+    <div class="feature">
+        <div class="feature-icon">🎤</div>
+        <div class="feature-title">Voice Input</div>
+        <div class="feature-text">
+        Speak naturally with your AI
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+with f2:
+    st.markdown("""
+    <div class="feature">
+        <div class="feature-icon">🧠</div>
+        <div class="feature-title">Smart AI</div>
+        <div class="feature-text">
+        Intelligent real-time responses
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+with f3:
+    st.markdown("""
+    <div class="feature">
+        <div class="feature-icon">🔊</div>
+        <div class="feature-title">Voice Output</div>
+        <div class="feature-text">
+        Listen to AI responses
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+st.markdown("<br>", unsafe_allow_html=True)
+
+# =========================================================
+# MAIN COLUMNS
+# =========================================================
+
+left, right = st.columns(2, gap="large")
+
+# =========================================================
+# LEFT - VOICE INPUT
+# =========================================================
+
+with left:
+
+    st.markdown("""
+    <div class="glass">
+
+        <div class="card-title">
+            🎤 Talk to Voxora
+        </div>
+
+        <div class="card-subtitle">
+            Record your voice and let AI understand you.
+        </div>
+
+        <div class="voice-circle">
+            🎙️
+        </div>
+
+    </div>
+    """, unsafe_allow_html=True)
+
+    audio = st.audio_input(
+        "🎙️ Tap here to record your voice"
     )
 
-    st.markdown("---")
-
-    st.markdown("### 🎤 How it works")
-
-    st.write("1. Voice record karo")
-    st.write("2. AI tumhari voice samjhega")
-    st.write("3. AI response generate karega")
-    st.write("4. Response voice mein suno")
-
-    st.markdown("---")
-
-    if st.button("🗑️ Clear Conversation"):
-        st.session_state.messages = []
-        st.session_state.last_response = ""
-        st.rerun()
-
 # =========================================================
-# MAIN AREA
+# RIGHT - AI RESPONSE
 # =========================================================
 
-col1, col2 = st.columns(2)
+with right:
 
-# =========================================================
-# VOICE INPUT
-# =========================================================
+    st.markdown("""
+    <div class="glass">
 
-with col1:
+        <div class="card-title">
+            🤖 AI Conversation
+        </div>
 
-    st.markdown(
-        '<div class="box"><h2>🎤 Voice Input</h2>',
-        unsafe_allow_html=True
-    )
+        <div class="card-subtitle">
+            Your AI response will appear here.
+        </div>
 
-    audio = st.audio_input("🎙️ Record your voice")
+    """, unsafe_allow_html=True)
+
+    if st.session_state.conversation:
+
+        for msg in st.session_state.conversation[-4:]:
+
+            if msg["role"] == "user":
+
+                st.markdown(
+                    f"""
+                    <div style="
+                    background:rgba(59,130,246,0.10);
+                    border-radius:14px;
+                    padding:13px;
+                    margin-bottom:10px;">
+                    <b>🗣️ You</b><br>
+                    {msg["content"]}
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
+
+            else:
+
+                st.markdown(
+                    f"""
+                    <div style="
+                    background:rgba(139,92,246,0.10);
+                    border-radius:14px;
+                    padding:13px;
+                    margin-bottom:10px;">
+                    <b>🤖 Voxora</b><br>
+                    {msg["content"]}
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
+
+    else:
+
+        st.markdown("""
+        <div style="
+        text-align:center;
+        padding:35px 10px;
+        color:#77829b;">
+
+        🎧<br><br>
+        Start a voice conversation<br>
+        and your AI response will appear here.
+
+        </div>
+        """, unsafe_allow_html=True)
 
     st.markdown("</div>", unsafe_allow_html=True)
 
 # =========================================================
-# PROCESS VOICE
+# PROCESS AUDIO
 # =========================================================
 
 if audio is not None:
 
-    st.success("✅ Voice recorded successfully!")
+    st.markdown("<br>", unsafe_allow_html=True)
 
-    audio_bytes = audio.getvalue()
-
-    with st.spinner("🎧 Voice ko samajh raha hoon..."):
+    with st.spinner("🎧 Listening to your voice..."):
 
         try:
 
-            # -------------------------------------------------
-            # SAVE AUDIO TEMPORARILY
-            # -------------------------------------------------
+            # -----------------------------------------------
+            # SAVE AUDIO
+            # -----------------------------------------------
+
+            audio_bytes = audio.getvalue()
 
             with tempfile.NamedTemporaryFile(
                 delete=False,
                 suffix=".wav"
-            ) as temp_audio:
+            ) as temp_file:
 
-                temp_audio.write(audio_bytes)
-                audio_path = temp_audio.name
+                temp_file.write(audio_bytes)
+                audio_path = temp_file.name
 
-            # -------------------------------------------------
+            # -----------------------------------------------
             # SPEECH TO TEXT
-            # -------------------------------------------------
+            # -----------------------------------------------
 
-            with open(audio_path, "rb") as file:
+            with open(audio_path, "rb") as audio_file:
 
                 transcription = client.audio.transcriptions.create(
-                    file=file,
+                    file=audio_file,
                     model="whisper-large-v3-turbo",
                     response_format="text"
                 )
 
-            user_text = str(transcription)
+            user_text = str(transcription).strip()
+
+            if not user_text:
+                st.warning("Voice samajh nahi aayi. Dobara try karein.")
+                st.stop()
+
+            # -----------------------------------------------
+            # SHOW USER TEXT
+            # -----------------------------------------------
 
             st.markdown("### 🗣️ You said")
 
-            st.info(user_text)
-
-            # -------------------------------------------------
-            # AI RESPONSE
-            # -------------------------------------------------
-
-            st.session_state.messages.append(
-                {
-                    "role": "user",
-                    "content": user_text
-                }
-            )
-
-            response = client.chat.completions.create(
-                model=model,
-                messages=[
-                    {
-                        "role": "system",
-                        "content": (
-                            "You are a friendly voice AI assistant. "
-                            "Give natural, helpful and concise answers. "
-                            "Speak like a real conversational assistant."
-                        )
-                    }
-                ] + st.session_state.messages,
-                temperature=0.7,
-                max_tokens=500
-            )
-
-            ai_text = response.choices[0].message.content
-
-            st.session_state.messages.append(
-                {
-                    "role": "assistant",
-                    "content": ai_text
-                }
-            )
-
-            st.session_state.last_response = ai_text
-
-            st.markdown("### 🤖 AI Response")
-
             st.markdown(
-                f'<div class="response">{ai_text}</div>',
+                f"""
+                <div class="glass">
+                    {user_text}
+                </div>
+                """,
                 unsafe_allow_html=True
             )
 
-            # -------------------------------------------------
+            # -----------------------------------------------
+            # ADD USER MESSAGE
+            # -----------------------------------------------
+
+            st.session_state.conversation.append({
+                "role": "user",
+                "content": user_text
+            })
+
+            # -----------------------------------------------
+            # AI RESPONSE
+            # -----------------------------------------------
+
+            with st.spinner("🧠 Voxora is thinking..."):
+
+                response = client.chat.completions.create(
+                    model="llama-3.1-8b-instant",
+                    messages=[
+                        {
+                            "role": "system",
+                            "content": """
+You are Voxora AI, a friendly voice-to-voice assistant.
+
+Answer naturally like a real person.
+Keep responses clear and conversational.
+Do not use unnecessary headings.
+Do not make responses extremely long.
+"""
+                        }
+                    ] + st.session_state.conversation,
+                    temperature=0.7,
+                    max_tokens=400
+                )
+
+            ai_response = response.choices[0].message.content.strip()
+
+            # -----------------------------------------------
+            # SAVE RESPONSE
+            # -----------------------------------------------
+
+            st.session_state.conversation.append({
+                "role": "assistant",
+                "content": ai_response
+            })
+
+            # -----------------------------------------------
+            # SHOW AI RESPONSE
+            # -----------------------------------------------
+
+            st.markdown("### 🤖 Voxora AI")
+
+            st.markdown(
+                f"""
+                <div class="glass">
+                    <div style="
+                    font-size:17px;
+                    line-height:1.8;">
+                    {ai_response}
+                    </div>
+                </div>
+                """,
+                unsafe_allow_html=True
+            )
+
+            # -----------------------------------------------
             # TEXT TO SPEECH
-            # -------------------------------------------------
+            # -----------------------------------------------
 
-            with st.spinner("🔊 AI voice bana raha hai..."):
+            with st.spinner("🔊 Creating AI voice..."):
 
-                speech_response = client.audio.speech.create(
+                speech = client.audio.speech.create(
                     model="canopylabs/orpheus-v1-english",
                     voice="tara",
-                    input=ai_text,
+                    input=ai_response,
                     response_format="wav"
                 )
 
-                audio_output = speech_response.read()
+                voice_data = speech.read()
+
+            # -----------------------------------------------
+            # PLAY VOICE
+            # -----------------------------------------------
 
             st.markdown("### 🔊 AI Voice")
 
             st.audio(
-                audio_output,
+                voice_data,
                 format="audio/wav"
             )
 
-            # -------------------------------------------------
-            # DOWNLOAD
-            # -------------------------------------------------
-
             st.download_button(
                 label="⬇️ Download AI Voice",
-                data=audio_output,
-                file_name="voiceflow_ai_response.wav",
+                data=voice_data,
+                file_name="voxora_ai_response.wav",
                 mime="audio/wav"
             )
 
-        except Exception as e:
+        except Exception as error:
 
-            st.error("❌ Error")
+            st.error("❌ Something went wrong.")
 
-            st.code(str(e))
-
-# =========================================================
-# CHAT HISTORY
-# =========================================================
-
-if st.session_state.messages:
-
-    st.markdown("---")
-    st.markdown("## 💬 Conversation")
-
-    for message in st.session_state.messages:
-
-        if message["role"] == "user":
-
-            st.markdown(
-                f"""
-                <div class="box">
-                    <b>🗣️ You</b><br>
-                    {message["content"]}
-                </div>
-                """,
-                unsafe_allow_html=True
-            )
-
-        else:
-
-            st.markdown(
-                f"""
-                <div class="response">
-                    <b>🤖 AI</b><br>
-                    {message["content"]}
-                </div>
-                """,
-                unsafe_allow_html=True
-            )
+            st.code(str(error))
 
 # =========================================================
 # FOOTER
 # =========================================================
 
-st.markdown("---")
+st.markdown("<br><br>", unsafe_allow_html=True)
 
-st.markdown(
-    """
-    <div style="text-align:center;color:#94a3b8;">
-        🎙️ VoiceFlow AI • Powered by Groq
-    </div>
-    """,
-    unsafe_allow_html=True
-)
+st.markdown("""
+<div style="
+text-align:center;
+color:#69748c;
+font-size:13px;
+padding:20px;">
+
+🎙️ <b>Voxora AI</b><br>
+Voice to Voice • Powered by Groq
+
+</div>
+""", unsafe_allow_html=True)
